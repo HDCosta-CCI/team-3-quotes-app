@@ -21,7 +21,7 @@ if config.config_file_name is not None:
 from connections.database import Base
 
 # models
-
+from models.users import Users
 
 from dotenv import load_dotenv
 import os
