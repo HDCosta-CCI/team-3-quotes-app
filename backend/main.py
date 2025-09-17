@@ -1,9 +1,14 @@
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
+
 from middleware.auth_context import AuthContextMiddleware
 from routes.user_routes import router as user_router
 from routes.auth_routes import router as auth_router
+from routes.quote_routes import router as quotes_router
+from models.users import Users
+from models.quotes import Quotes
+
 
 app = FastAPI()
 
@@ -22,8 +27,10 @@ app.add_middleware(
 app.add_middleware(AuthContextMiddleware)
 
 # Include all routes
+
 app.include_router(user_router)
 app.include_router(auth_router)
+app.include_router(quotes_router)
 
 def custom_openapi():
     # main.py (inside custom_openapi)
