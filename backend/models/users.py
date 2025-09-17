@@ -10,3 +10,4 @@ class Users(Base):
     last_name = Column(String(20))
     email = Column(String(255), unique=True)
     password = Column(String(255))
+    status = Column(String(15), default="active")
