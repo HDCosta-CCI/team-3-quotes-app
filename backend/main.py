@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from routes.quote_routes import router as quotes_router
+
+from models.users import Users
+from models.quotes import Quotes
 
 app = FastAPI()
 
@@ -17,3 +21,4 @@ app.add_middleware(
 )
 
 # Include all routes
+app.include_router(quotes_router)
