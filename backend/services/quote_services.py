@@ -6,8 +6,9 @@ from models.quotes import Quotes
 from uuid import UUID
 
 class QuoteServices:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, user):
         self.db = db
+        self.user = user
 
     def get_all_quotes(self):
         try:
@@ -22,6 +23,8 @@ class QuoteServices:
 
     def get_quote(self, quote_id):
         try:
+            if not self.user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
             quote = self.db.query(Quotes).filter(Quotes.quotes_id == quote_id).first()
             if not quote:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found")
@@ -33,6 +36,8 @@ class QuoteServices:
 
     def get_quote_tags(self): 
         try:
+            if not self.user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
             quotes = self.db.query(Quotes).all()
             tag_set = set()
 
@@ -48,8 +53,8 @@ class QuoteServices:
 
     def create_quote(self, request: QuoteRequest) -> Quotes:
         try:
-            # if self.user is None:
-            #     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
+            if self.user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
 
             new_quote = Quotes(**request.model_dump())
             self.db.add(new_quote)
@@ -68,6 +73,8 @@ class QuoteServices:
 
     def update_quote(self, quote_id, request: QuoteUpdateRequest):
         try:
+            if not self.user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
             quote = self.db.query(Quotes).filter(Quotes.quotes_id == quote_id).first()
             if not quote:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found")
@@ -89,7 +96,8 @@ class QuoteServices:
         try:
             # if self.user is None:
             #     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
-
+            if not self.user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
             quote = self.db.query(Quotes).filter(Quotes.quotes_id == quote_id).first()
             if not quote:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found")
