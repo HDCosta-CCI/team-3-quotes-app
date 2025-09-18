@@ -28,15 +28,19 @@ class AuthServices:
             self.db.commit()
             self.db.refresh(new_user)
 
+            data = {
+                'id': new_user.user_id,
+                'first_name': new_user.first_name,
+                'last_name': new_user.last_name,
+                'email': new_user.email
+            }
+
         except HTTPException as e:
             raise e
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
         else:
-            return {
-                "message": "User successfully created.",
-                "name" : new_user.first_name
-            }
+            return data
         
     def user_sign_in(self, user_sign_in_request: UserSignInRequest):
         try:
@@ -52,6 +56,12 @@ class AuthServices:
             access_token = create_access_token(user.first_name, user.email, user.user_id )
             refresh_token = create_access_token(user.first_name, user.email, user.user_id, timedelta(days=1), refresh=True)
 
+            data = {
+                'access_token': access_token,
+                'refresh_token': refresh_token,
+                'token_type': 'bearer'
+            }
+
         except HTTPException as e:
             raise e
         
@@ -59,5 +69,5 @@ class AuthServices:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
         
         else:
-            return {'access_token': access_token, 'refresh_token': refresh_token, 'token_type': 'bearer' }
+            return data
         
