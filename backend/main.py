@@ -6,6 +6,7 @@ from middleware.auth_context import AuthContextMiddleware
 from routes.user_routes import router as user_router
 from routes.auth_routes import router as auth_router
 from routes.quote_routes import router as quotes_router
+from routes.authors_routes import router as author_router
 from models.users import Users
 from models.quotes import Quotes
 from models.user_quote_reactions import UserQuoteReactions
@@ -29,9 +30,10 @@ app.add_middleware(AuthContextMiddleware)
 
 # Include all routes
 
-app.include_router(user_router)
 app.include_router(auth_router)
+app.include_router(user_router)
 app.include_router(quotes_router)
+app.include_router(author_router)
 
 def custom_openapi():
     # main.py (inside custom_openapi)
