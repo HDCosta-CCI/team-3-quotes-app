@@ -23,6 +23,7 @@ from connections.database import Base
 # models
 from models.users import Users
 from models.quotes import Quotes
+from models.user_quote_reactions import UserQuoteReactions
 
 from dotenv import load_dotenv
 import os
