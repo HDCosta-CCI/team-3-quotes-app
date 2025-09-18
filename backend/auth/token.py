@@ -20,8 +20,8 @@ def create_access_token(email: str, first_name: str, user_id:UUID, expire_delta:
 
     except JWTError:
         raise JWTError
-    except Exception:
-        return Exception
+    except Exception as e:
+        return e 
     else:
         return token
     

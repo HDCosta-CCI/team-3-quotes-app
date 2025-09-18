@@ -21,7 +21,7 @@ class QuoteRequest(BaseModel):
     }
 
 class Quote(BaseModel):
-    quotes_id: UUID
+    quote_id: UUID
     quote: str = Field(min_length=5, max_length=255)
     author: str = Field(min_length=5, max_length=100)
     like: int = 0

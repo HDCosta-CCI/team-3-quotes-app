@@ -15,7 +15,6 @@ router = APIRouter(
 async def get_all_quotes(db: Session = Depends(get_db)):
     try:
         data = QuoteServices(db, user=None).get_all_quotes()
-        # print(data)
         return QuoteResponse(
             success = True,
             message = "Quotes fetched successfully!",
@@ -24,8 +23,7 @@ async def get_all_quotes(db: Session = Depends(get_db)):
     except HTTPException as e:
         raise e
     except Exception as e:
-        raise e
-    
+        raise e    
 
 
 @router.get('/tags', status_code=status.HTTP_200_OK)
@@ -57,7 +55,6 @@ async def create_new_quote(request: QuoteRequest, db: Session = Depends(get_db),
         raise e
     except Exception as e:
         raise e
-    
 
 
 @router.patch('/{quote_id}', status_code=status.HTTP_200_OK)
@@ -89,6 +86,7 @@ async def delete_quote(quote_id: UUID, db: Session = Depends(get_db), user = Dep
     except Exception as e:
         raise e
 
+
 @router.get('/{quote_id}', status_code=status.HTTP_200_OK)
 async def get_quote_by_id(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:
@@ -102,6 +100,5 @@ async def get_quote_by_id(quote_id: UUID, db: Session = Depends(get_db), user = 
         raise e
     except Exception as e:
         raise e
-
 
 

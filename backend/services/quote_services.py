@@ -25,7 +25,7 @@ class QuoteServices:
         try:
             if not self.user:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-            quote = self.db.query(Quotes).filter(Quotes.quotes_id == quote_id).first()
+            quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
             if not quote:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found")
             return quote
@@ -75,7 +75,7 @@ class QuoteServices:
         try:
             if not self.user:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-            quote = self.db.query(Quotes).filter(Quotes.quotes_id == quote_id).first()
+            quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
             if not quote:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found")
             
@@ -98,10 +98,10 @@ class QuoteServices:
             #     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
             if not self.user:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-            quote = self.db.query(Quotes).filter(Quotes.quotes_id == quote_id).first()
+            quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
             if not quote:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found")
-            self.db.query(Quotes).filter(Quotes.quotes_id == quote_id).delete()
+            self.db.query(Quotes).filter(Quotes.quote_id == quote_id).delete()
             self.db.commit()
             return {
                 "entries" : None,

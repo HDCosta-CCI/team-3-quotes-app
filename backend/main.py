@@ -8,6 +8,7 @@ from routes.auth_routes import router as auth_router
 from routes.quote_routes import router as quotes_router
 from models.users import Users
 from models.quotes import Quotes
+from models.user_quote_reactions import UserQuoteReactions
 
 
 app = FastAPI()

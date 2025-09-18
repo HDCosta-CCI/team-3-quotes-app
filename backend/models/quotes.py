@@ -5,7 +5,8 @@ from connections.database import Base
 
 class Quotes(Base):
     __tablename__ = "quotes"
-    quotes_id = Column(Uuid, primary_key=True, default=uuid4, nullable=False)
+    
+    quote_id = Column(Uuid, primary_key=True, index=True, default=uuid4, nullable=False)
     quote = Column(String(255), nullable=False)
     author = Column(String(100), nullable=False)
     like = Column(Integer, default=0)
