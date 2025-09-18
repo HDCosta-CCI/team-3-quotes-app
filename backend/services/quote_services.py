@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from dto.quotes_dto import QuoteRequest, QuoteUpdateRequest
 from models.quotes import Quotes
+from models.user_quote_reactions import UserQuoteReactions
 from uuid import UUID
 
 class QuoteServices:
@@ -94,8 +95,6 @@ class QuoteServices:
 
     def delete_quote(self, quote_id):
         try:
-            # if self.user is None:
-            #     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
             if not self.user:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
             quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
@@ -108,4 +107,105 @@ class QuoteServices:
             }
         except HTTPException as e:
             raise e
+
+
+    def like_quote_up(self, quote_id):
+        try:
+            if not self.user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+            
+            quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
+            if not quote:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found.")
+            
+            if quote.user_id == self.user.user_id:
+                raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Cannot like own quotes!")
+            
+            reaction = self.db.query(UserQuoteReactions).filter_by(quote_id=quote_id, user_id=self.user.user_id).first()
+            
+            if reaction:
+                if reaction.like:
+                    raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Already liked!")
+                else:
+                    if reaction.dislike:
+                        quote.dislike -= 1
+                        quote.like += 1
+                        reaction.like = True
+                        reaction.dislike = False
+            else:
+                reaction = UserQuoteReactions(
+                    like=True,
+                    dislike=False,
+                    quote_id=quote.quote_id,
+                    user_id=self.user.user_id
+                )
+                self.db.add(reaction)
+                quote.like += 1
+            
+            self.db.commit()
+            self.db.refresh(quote)
+            self.db.refresh(reaction)
+
+            return  {
+                "id": reaction.reaction_id,
+                "quote": quote.quote,
+                "author": quote.author,
+                "like": quote.like,
+                "dislike": quote.dislike,
+                "tags": quote.tags
+            }
+                
+        except HTTPException as e:
+            raise e
+
+
+    def dislike_quote_up(self, quote_id):
+            try:
+                if not self.user:
+                    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+                
+                quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
+                if not quote:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found.")
+                
+                if quote.user_id == self.user.user_id:
+                    raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Cannot dislike own quotes!")
+                
+                reaction = self.db.query(UserQuoteReactions).filter_by(quote_id=quote_id, user_id=self.user.user_id).first()
+                
+                if reaction:
+                    if reaction.dislike:
+                        raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Already disliked!")
+                    else:
+                        if reaction.like and quote.like > 0:
+                            quote.like -= 1
+                            quote.dislike += 1
+                            reaction.dislike = True
+                            reaction.like = False
+                else:
+                    reaction = UserQuoteReactions(
+                        like=False,
+                        dislike=True,
+                        quote_id=quote.quote_id,
+                        user_id=self.user.user_id
+                    )
+                    self.db.add(reaction)
+                    quote.dislike += 1
+                
+                self.db.commit()
+                self.db.refresh(quote)
+                self.db.refresh(reaction)
+
+                return  {
+                    "id": reaction.reaction_id,
+                    "quote": quote.quote,
+                    "author": quote.author,
+                    "like": quote.like,
+                    "dislike": quote.dislike,
+                    "tags": quote.tags
+                }
+                    
+            except HTTPException as e:
+                raise e
+
 

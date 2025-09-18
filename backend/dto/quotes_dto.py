@@ -36,7 +36,7 @@ class Quote(BaseModel):
 class QuoteResponse(BaseModel):
     message: str = Field(min_length=5)
     success: bool = Field(default=True)
-    data: List[Quote] | Quote | dict
+    data: List[Quote] | Quote | dict | dict[str, Any]
     
 class QuoteUpdateRequest(BaseModel):
     quote: Optional[str] = None
