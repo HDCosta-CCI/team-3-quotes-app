@@ -92,7 +92,8 @@ class UserServices:
                     "likes": q.like,
                     "dislikes": q.dislike,
                     "tags": q.tags,
-                    "user_id": str(q.user_id)
+                    "user_id": str(q.user_id),
+                    "quote_id": q.quote_id
                 })
 
         except HTTPException as e:
@@ -119,7 +120,8 @@ class UserServices:
                     "likes": q.like,
                     "dislikes": q.dislike,
                     "tags": q.tags,
-                    "user_id": str(q.user_id)
+                    "user_id": str(q.user_id),
+                    "quote_id": q.quote_id
                 })
 
         except HTTPException as e:
@@ -147,7 +149,8 @@ class UserServices:
                     "likes": q.like,
                     "dislikes": q.dislike,
                     "tags": q.tags,
-                    "user_id": str(q.user_id)
+                    "user_id": str(q.user_id),
+                    "quote_id": q.quote_id
                 })
 
         except HTTPException as e:
