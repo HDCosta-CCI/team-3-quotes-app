@@ -6,7 +6,6 @@ class QuoteRequest(BaseModel):
     quote: str = Field(min_length=5)
     author: str = Field(min_length=5)
     tags: str
-    user_id: UUID
 
     model_config = {
         "json_schema_extra": {
@@ -14,7 +13,6 @@ class QuoteRequest(BaseModel):
                 "quote": "quote",
                 "author": "author",
                 "tags": "tag1;tag2",
-                "user_id": "uuid" #TODO: to be removed (dunamically extracted & added from token)
             }
         },
         "from_attributes": True
