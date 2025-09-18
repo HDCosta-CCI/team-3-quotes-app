@@ -4,6 +4,7 @@ from dependencies.get_db import get_db
 from dependencies.get_current_user import get_current_user
 from services.quote_services import QuoteServices
 from dto.quotes_dto import QuoteRequest, QuoteResponse, QuoteUpdateRequest
+from dto.response_dto import GlobalResponse
 from uuid import UUID
 
 router = APIRouter(
@@ -24,7 +25,7 @@ router = APIRouter(
 async def get_all_quotes(db: Session = Depends(get_db)):
     try:
         data = QuoteServices(db, user=None).get_all_quotes()
-        return QuoteResponse(
+        return GlobalResponse(
             success = True,
             message = "Quotes fetched successfully!",
             data = data
@@ -49,7 +50,7 @@ async def get_all_quote_tags(db: Session = Depends(get_db), user = Depends(get_c
     try:
         data = QuoteServices(db, user).get_quote_tags()
 
-        return QuoteResponse (
+        return GlobalResponse (
             success = True,
             message = "Quote tags fetched successfully!",
             data = data
@@ -73,7 +74,7 @@ async def get_all_quote_tags(db: Session = Depends(get_db), user = Depends(get_c
 async def create_new_quote(request: QuoteRequest, db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:
         data = QuoteServices(db, user).create_quote(request)
-        return QuoteResponse (
+        return GlobalResponse (
             success = True,
             message = "Quote created successfully!",
             data = data
@@ -97,7 +98,7 @@ async def create_new_quote(request: QuoteRequest, db: Session = Depends(get_db),
 async def update_quote(quote_id: UUID, request: QuoteUpdateRequest, db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:
         data = QuoteServices(db, user).update_quote(quote_id, request)
-        return QuoteResponse (
+        return GlobalResponse (
             success = True,
             message = "Quote updated successfully!",
             data = data
@@ -121,7 +122,7 @@ async def update_quote(quote_id: UUID, request: QuoteUpdateRequest, db: Session 
 async def delete_quote(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:
         data = QuoteServices(db, user).delete_quote(quote_id)
-        return QuoteResponse (
+        return GlobalResponse (
             success = True,
             message = "Quote deleted successfully!",
             data = data
@@ -145,7 +146,7 @@ async def delete_quote(quote_id: UUID, db: Session = Depends(get_db), user = Dep
 async def get_quote_by_id(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:
         data = QuoteServices(db, user).get_quote(quote_id)
-        return QuoteResponse (
+        return GlobalResponse (
             success = True,
             message = "Quote fetched successfully!",
             data = data
@@ -163,7 +164,7 @@ async def get_quote_by_id(quote_id: UUID, db: Session = Depends(get_db), user = 
 async def like_quote(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:    
         data = QuoteServices(db, user).like_quote_up(quote_id)
-        return QuoteResponse (
+        return GlobalResponse (
             success = True,
             message = "Quote liked successfully",
             data = data
@@ -181,7 +182,7 @@ async def like_quote(quote_id: UUID, db: Session = Depends(get_db), user = Depen
 async def dislike_quote(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:    
         data = QuoteServices(db, user).dislike_quote_up(quote_id)
-        return QuoteResponse (
+        return GlobalResponse (
             success = True,
             message = "Quote disliked successfully",
             data = data
@@ -190,3 +191,40 @@ async def dislike_quote(quote_id: UUID, db: Session = Depends(get_db), user = De
         raise e
     except Exception as e:
         raise e
+
+
+@router.get(
+    '/{quote_id}/like/down',
+    status_code=status.HTTP_200_OK
+)
+async def remove_like(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
+    try:    
+        data = QuoteServices(db, user).like_quote_down(quote_id)
+        return GlobalResponse (
+            success = True,
+            message = "Like removed successfully",
+            data = data
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise e
+
+
+@router.get(
+    '/{quote_id}/dislike/down',
+    status_code=status.HTTP_200_OK
+)
+async def remove_dislike(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
+    try:    
+        data = QuoteServices(db, user).dislike_quote_down(quote_id)
+        return GlobalResponse (
+            success = True,
+            message = "Dislike removed successfully",
+            data = data
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise e
+    

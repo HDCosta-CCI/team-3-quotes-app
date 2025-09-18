@@ -16,7 +16,20 @@ class QuoteServices:
             quotes = self.db.query(Quotes).all()
             if not quotes:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Quotes found!")
-            return quotes
+            print(quotes)
+
+            quotes_list = []
+
+            for quote in quotes:
+                quotes_list.append({
+                    "quote_id": quote.quote_id,
+                    "quote": quote.quote,
+                    "author": quote.author,
+                    "likes": quote.like,
+                    "dislikes": quote.dislike,
+                    "tags": quote.tags,
+                })
+            return quotes_list
         
         except HTTPException as e:
             raise e
@@ -29,7 +42,16 @@ class QuoteServices:
             quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
             if not quote:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found")
-            return quote
+            
+            data = {
+                "id": str(quote.quote_id),
+                "quote": quote.quote,
+                "author": quote.author,
+                "like": quote.like,
+                "dislike": quote.dislike,
+                "tags": quote.tags,
+            }
+            return data
 
         except HTTPException as e:
             raise e
@@ -39,16 +61,17 @@ class QuoteServices:
         try:
             if not self.user:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-            quotes = self.db.query(Quotes).all()
+            tags = self.db.query(Quotes.tags).all()  # returns list of tuples
             tag_set = set()
 
-            for quote in quotes:
-                if quote.tags:
-                    for tag in quote.tags.split(";"):
+            for (tag_string,) in tags:  # unpack tuple
+                if tag_string:
+                    for tag in tag_string.split(";"):
                         tag_set.add(tag.strip())
+
             sorted_tags = sorted(tag_set)
 
-            return {"tags": sorted_tags}
+            return sorted_tags
         except HTTPException as e:
             raise e
 
@@ -57,7 +80,13 @@ class QuoteServices:
             if self.user is None:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
 
-            new_quote = Quotes(**request.model_dump())
+            # new_quote = Quotes(**request.model_dump())
+            new_quote = Quotes(
+                quote = request.quote,
+                author = request.author,
+                tags = request.tags,
+                user_id = self.user.user_id
+            )
             self.db.add(new_quote)
             self.db.commit()
             self.db.refresh(new_quote)
@@ -66,7 +95,7 @@ class QuoteServices:
                 "quote" : new_quote.quote, 
                 "author": new_quote.author,
                 "tags": new_quote.tags,
-                "user_id": new_quote.user_id
+                "user_id": self.user.user_id
             }
         except HTTPException as e:
             raise e
@@ -87,7 +116,16 @@ class QuoteServices:
             self.db.commit()
             self.db.refresh(quote)
 
-            return quote
+            data = {
+                "id": str(quote.quote_id),
+                "quote": quote.quote,
+                "author": quote.author,
+                "like": quote.like,
+                "dislike": quote.dislike,
+                "tags": quote.tags,
+            }
+
+            return data
 
         except HTTPException as e:
             raise e
@@ -121,7 +159,7 @@ class QuoteServices:
             if quote.user_id == self.user.user_id:
                 raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Cannot like own quotes!")
             
-            reaction = self.db.query(UserQuoteReactions).filter_by(quote_id=quote_id, user_id=self.user.user_id).first()
+            reaction = self.db.query(UserQuoteReactions).filter(UserQuoteReactions.quote_id==quote_id, UserQuoteReactions.user_id==self.user.user_id).first()
             
             if reaction:
                 if reaction.like:
@@ -132,6 +170,9 @@ class QuoteServices:
                         quote.like += 1
                         reaction.like = True
                         reaction.dislike = False
+                    else:
+                        quote.like += 1
+                        reaction.like = True
             else:
                 reaction = UserQuoteReactions(
                     like=True,
@@ -171,17 +212,21 @@ class QuoteServices:
                 if quote.user_id == self.user.user_id:
                     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Cannot dislike own quotes!")
                 
-                reaction = self.db.query(UserQuoteReactions).filter_by(quote_id=quote_id, user_id=self.user.user_id).first()
+                reaction = self.db.query(UserQuoteReactions).filter(UserQuoteReactions.quote_id==quote_id, UserQuoteReactions.user_id==self.user.user_id).first()
+
                 
                 if reaction:
                     if reaction.dislike:
                         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Already disliked!")
                     else:
-                        if reaction.like and quote.like > 0:
+                        if reaction.like:
                             quote.like -= 1
                             quote.dislike += 1
                             reaction.dislike = True
                             reaction.like = False
+                        else:
+                            quote.dislike += 1
+                            reaction.dislike = True
                 else:
                     reaction = UserQuoteReactions(
                         like=False,
@@ -209,3 +254,77 @@ class QuoteServices:
                 raise e
 
 
+    def like_quote_down(self, quote_id):
+        try:
+            if not self.user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+            
+            quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
+            if not quote:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found.")
+            
+            if quote.user_id == self.user.user_id:
+                raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Cannot like/dislike own quotes!")
+            
+            reaction = self.db.query(UserQuoteReactions).filter(UserQuoteReactions.quote_id==quote_id, UserQuoteReactions.user_id==self.user.user_id).first()
+            
+            if reaction:
+                if not reaction.like:
+                    raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not liked!")
+                else:
+                    quote.like -= 1
+                    reaction.like = False
+
+            self.db.commit()
+            self.db.refresh(quote)
+            self.db.refresh(reaction)
+
+            return  {
+                "id": reaction.reaction_id,
+                "quote": quote.quote,
+                "author": quote.author,
+                "like": quote.like,
+                "dislike": quote.dislike,
+                "tags": quote.tags
+            }
+                
+        except HTTPException as e:
+            raise e
+
+
+    def dislike_quote_down(self, quote_id):
+        try:
+            if not self.user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+            
+            quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
+            if not quote:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found.")
+            
+            if quote.user_id == self.user.user_id:
+                raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Cannot like/dislike own quotes!")
+            
+            reaction = self.db.query(UserQuoteReactions).filter(UserQuoteReactions.quote_id==quote_id, UserQuoteReactions.user_id==self.user.user_id).first()
+            
+            if reaction:
+                if not reaction.dislike:
+                    raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not disliked!")
+                else:
+                    quote.dislike -= 1
+                    reaction.dislike = False
+
+            self.db.commit()
+            self.db.refresh(quote)
+            self.db.refresh(reaction)
+
+            return  {
+                "id": reaction.reaction_id,
+                "quote": quote.quote,
+                "author": quote.author,
+                "like": quote.like,
+                "dislike": quote.dislike,
+                "tags": quote.tags
+            }
+                
+        except HTTPException as e:
+            raise e
