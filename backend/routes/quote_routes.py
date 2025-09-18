@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 @router.get(
-    '/', 
+    '', 
     status_code=status.HTTP_200_OK,
     summary="Get All Quotes",
     description="""
@@ -62,7 +62,7 @@ async def get_all_quote_tags(db: Session = Depends(get_db), user = Depends(get_c
 
 
 @router.post(
-    '/', 
+    '', 
     status_code=status.HTTP_201_CREATED,
     summary="Create a New Quote",
     description="""
@@ -228,3 +228,33 @@ async def remove_dislike(quote_id: UUID, db: Session = Depends(get_db), user = D
     except Exception as e:
         raise e
     
+
+@router.get("/{quote_id}/like/users")
+def fetch_liked_users(quote_id:UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
+    try:
+        data = QuoteServices(db, user).fetch_liked_user(quote_id)
+        return GlobalResponse(
+            data= data,
+            message= "Users fetched successfully",
+            success= True
+        )
+    
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise e
+
+@router.get("/{quote_id}/dislike/users")
+def fetch_disliked_users(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
+    try:
+        data = QuoteServices(db, user).fetch_disliked_user(quote_id)
+        return GlobalResponse(
+            data= data,
+            message= "Users fetched successfully",
+            success= True
+        )
+    
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise e    

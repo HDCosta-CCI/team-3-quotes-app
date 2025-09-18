@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from dto.quotes_dto import QuoteRequest, QuoteUpdateRequest
 from models.quotes import Quotes
+from models.users import Users
 from models.user_quote_reactions import UserQuoteReactions
 from uuid import UUID
 
@@ -33,6 +34,9 @@ class QuoteServices:
         
         except HTTPException as e:
             raise e
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
 
     def get_quote(self, quote_id):
@@ -56,6 +60,9 @@ class QuoteServices:
         except HTTPException as e:
             raise e
         
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
+        
 
     def get_quote_tags(self): 
         try:
@@ -74,6 +81,9 @@ class QuoteServices:
             return sorted_tags
         except HTTPException as e:
             raise e
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
     def create_quote(self, request: QuoteRequest) -> Quotes:
         try:
@@ -99,6 +109,9 @@ class QuoteServices:
             }
         except HTTPException as e:
             raise e
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
         
 
     def update_quote(self, quote_id, request: QuoteUpdateRequest):
@@ -129,6 +142,9 @@ class QuoteServices:
 
         except HTTPException as e:
             raise e
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
 
     def delete_quote(self, quote_id):
@@ -143,8 +159,12 @@ class QuoteServices:
             return {
                 "entries" : None,
             }
+        
         except HTTPException as e:
             raise e
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
 
     def like_quote_up(self, quote_id):
@@ -198,6 +218,9 @@ class QuoteServices:
                 
         except HTTPException as e:
             raise e
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
 
     def dislike_quote_up(self, quote_id):
@@ -252,6 +275,9 @@ class QuoteServices:
                     
             except HTTPException as e:
                 raise e
+        
+            except Exception as e:
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
 
     def like_quote_down(self, quote_id):
@@ -290,6 +316,9 @@ class QuoteServices:
                 
         except HTTPException as e:
             raise e
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
 
     def dislike_quote_down(self, quote_id):
@@ -328,3 +357,47 @@ class QuoteServices:
                 
         except HTTPException as e:
             raise e
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
+        
+    
+    def fetch_liked_user(self, quote_id):
+        try:
+            users = self.db.query(Users).join(UserQuoteReactions, UserQuoteReactions.user_id == Users.user_id).filter(UserQuoteReactions.quote_id == quote_id, UserQuoteReactions.like == True).all()
+
+            data = []
+
+            for user in users:
+                data.append({
+                    'first_name': user.first_name,
+                    'last_name': user.last_name
+                })
+
+            return data
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
+        
+    def fetch_disliked_user(self, quote_id):
+        try:
+            users = self.db.query(Users).join(UserQuoteReactions, UserQuoteReactions.user_id == Users.user_id).filter(UserQuoteReactions.quote_id == quote_id, UserQuoteReactions.dislike == True).all()
+
+            data = []
+
+            for user in users:
+                data.append({
+                    'first_name': user.first_name,
+                    'last_name': user.last_name
+                })
+
+            return data
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
