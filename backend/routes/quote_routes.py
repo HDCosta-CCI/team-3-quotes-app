@@ -11,7 +11,16 @@ router = APIRouter(
     tags=['quotes']
 )
 
-@router.get('/', status_code=status.HTTP_200_OK)
+@router.get(
+    '/', 
+    status_code=status.HTTP_200_OK,
+    summary="Get All Quotes",
+    description="""
+    Fetches a list of all available quotes in the system.  
+    - Public endpoint (no authentication required)  
+    - Returns a structured list of quotes including author, content, and tags
+    """
+)
 async def get_all_quotes(db: Session = Depends(get_db)):
     try:
         data = QuoteServices(db, user=None).get_all_quotes()
@@ -26,7 +35,16 @@ async def get_all_quotes(db: Session = Depends(get_db)):
         raise e    
 
 
-@router.get('/tags', status_code=status.HTTP_200_OK)
+@router.get(
+    '/tags', 
+    status_code=status.HTTP_200_OK,
+    summary="Get All Quote Tags",
+    description="""
+    Fetches all unique tags used across quotes.  
+    - Protected route (requires authentication)  
+    - Useful for filtering quotes by category/tag
+    """
+)
 async def get_all_quote_tags(db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:
         data = QuoteServices(db, user).get_quote_tags()
@@ -42,7 +60,16 @@ async def get_all_quote_tags(db: Session = Depends(get_db), user = Depends(get_c
         raise e
 
 
-@router.post('/', status_code=status.HTTP_201_CREATED)
+@router.post(
+    '/', 
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a New Quote",
+    description="""
+    Allows an authenticated user to create a new quote.  
+    - Requires authentication  
+    - Request must include `author`, `quote`, and optional `tags`  
+    """
+)
 async def create_new_quote(request: QuoteRequest, db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:
         data = QuoteServices(db, user).create_quote(request)
@@ -57,7 +84,16 @@ async def create_new_quote(request: QuoteRequest, db: Session = Depends(get_db),
         raise e
 
 
-@router.patch('/{quote_id}', status_code=status.HTTP_200_OK)
+@router.patch(
+    '/{quote_id}', 
+    status_code=status.HTTP_200_OK,
+    summary="Update an Existing Quote",
+    description="""
+    Updates details of an existing quote by ID.  
+    - Requires authentication  
+    - Supports updating author, quote text, or tags
+    """
+)
 async def update_quote(quote_id: UUID, request: QuoteUpdateRequest, db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:
         data = QuoteServices(db, user).update_quote(quote_id, request)
@@ -72,7 +108,16 @@ async def update_quote(quote_id: UUID, request: QuoteUpdateRequest, db: Session 
         raise e
     
 
-@router.delete('/{quote_id}', status_code=status.HTTP_200_OK)
+@router.delete(
+    '/{quote_id}', 
+    status_code=status.HTTP_200_OK,
+    summary="Delete a Quote",
+    description="""
+    Deletes a quote by its ID.  
+    - Requires authentication  
+    - Only quote owners or admins should be able to delete
+    """
+)
 async def delete_quote(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:
         data = QuoteServices(db, user).delete_quote(quote_id)
@@ -87,7 +132,16 @@ async def delete_quote(quote_id: UUID, db: Session = Depends(get_db), user = Dep
         raise e
 
 
-@router.get('/{quote_id}', status_code=status.HTTP_200_OK)
+@router.get(
+    '/{quote_id}', 
+    status_code=status.HTTP_200_OK,
+    summary="Get Quote by ID",
+    description="""
+    Fetches a single quote by its unique ID.  
+    - Requires authentication  
+    - Returns the full quote details (author, quote, tags, user info)
+    """
+)
 async def get_quote_by_id(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
     try:
         data = QuoteServices(db, user).get_quote(quote_id)
@@ -102,3 +156,37 @@ async def get_quote_by_id(quote_id: UUID, db: Session = Depends(get_db), user = 
         raise e
 
 
+@router.get(
+    '/{quote_id}/like/up',
+    status_code=status.HTTP_200_OK
+)
+async def like_quote(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
+    try:    
+        data = QuoteServices(db, user).like_quote_up(quote_id)
+        return QuoteResponse (
+            success = True,
+            message = "Quote liked successfully",
+            data = data
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise e
+
+
+@router.get(
+    '/{quote_id}/dislike/up',
+    status_code=status.HTTP_200_OK
+)
+async def dislike_quote(quote_id: UUID, db: Session = Depends(get_db), user = Depends(get_current_user)):
+    try:    
+        data = QuoteServices(db, user).dislike_quote_up(quote_id)
+        return QuoteResponse (
+            success = True,
+            message = "Quote disliked successfully",
+            data = data
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise e
