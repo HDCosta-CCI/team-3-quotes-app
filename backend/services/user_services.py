@@ -21,7 +21,7 @@ class UserServices:
         except HTTPException as e:
             raise e
         except Exception as e:
-            raise e
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
         else:
             return data
     
