@@ -8,7 +8,7 @@ import os
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRY = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+ACCESS_TOKEN_EXPIRY = 20
 
 def create_access_token(email: str, first_name: str, user_id:UUID, expire_delta: timedelta = None, refresh: bool = False):
     try:
