@@ -17,30 +17,10 @@ class QuoteRequest(BaseModel):
         },
         "from_attributes": True
     }
-
-class Quote(BaseModel):
-    quote_id: UUID
-    quote: str = Field(min_length=5, max_length=255)
-    author: str = Field(min_length=5, max_length=100)
-    like: int = 0
-    dislike: int = 0
-    tags: Optional[str] = None
-    user_id: UUID
-
-    model_config = {
-        "from_attributes": True
-    }
-
-class QuoteResponse(BaseModel):
-    message: str = Field(min_length=5)
-    success: bool = Field(default=True)
-    data: List[Quote] | Quote | dict | dict[str, Any]
     
 class QuoteUpdateRequest(BaseModel):
     quote: Optional[str] = None
     author: Optional[str] = None
-    like: Optional[int] = None
-    dislike: Optional[int] = None
     tags: Optional[str] = None
 
 

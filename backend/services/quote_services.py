@@ -332,28 +332,30 @@ class QuoteServices:
     def count_like_dislike(self):
 
         time.sleep(1)
+
         try:
-            likes_per_quote = (self.db.query(UserQuoteReactions.quote_id, func.count()).filter(UserQuoteReactions.like == True).group_by(UserQuoteReactions.quote_id).all())
-            dislikes_per_quote = (self.db.query(UserQuoteReactions.quote_id, func.count()).filter(UserQuoteReactions.dislike == True).group_by(UserQuoteReactions.quote_id).all())
+            quotes = self.db.query(Quotes).all()
 
-            likes_dict = {quote_id: count for quote_id, count in likes_per_quote}
-            dislikes_dict = {quote_id: count for quote_id, count in dislikes_per_quote}
+            for quote in quotes:
+                like_count = self.db.query(func.count()).filter(
+                    UserQuoteReactions.quote_id == quote.quote_id,
+                    UserQuoteReactions.like == True
+                ).scalar()
 
-            all_quote_ids = set(likes_dict.keys()).union(dislikes_dict.keys())
-            for quote_id in all_quote_ids:
-                quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
-                if not quote:
-                    continue
+                dislike_count = self.db.query(func.count()).filter(
+                    UserQuoteReactions.quote_id == quote.quote_id,
+                    UserQuoteReactions.dislike == True
+                ).scalar()
 
-                if quote_id in likes_dict:
-                    quote.like = likes_dict[quote_id]
-
-                if quote_id in dislikes_dict:
-                    quote.dislike = dislikes_dict[quote_id]
+                quote.like = like_count
+                quote.dislike = dislike_count
 
             self.db.commit()
+
         except Exception as e:
-            raise e
+            self.db.rollback()
+            raise HTTPException(status_code=500,detail=f"Internal server error: {str(e)}")
+
         
 
 
