@@ -41,7 +41,8 @@ class QuoteServices:
 
     def get_quote(self, quote_id):
         try:
-            self.authorize_user()
+            if not self.user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
             quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
             if not quote:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found")
