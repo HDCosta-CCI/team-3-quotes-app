@@ -15,7 +15,7 @@ router = APIRouter(
 @router.get("", status_code=status.HTTP_200_OK)
 def fetch_users(user = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
-        data = UserServices(db, user=None).fetch_user_details(user)
+        data = UserServices(db, user).fetch_user_details()
         return GlobalResponse(
             data= data,
             message= "User fetched successfully",

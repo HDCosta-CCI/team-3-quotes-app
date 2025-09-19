@@ -7,6 +7,9 @@ class AuthorServices():
 
     def fetch_authors(self):
         try:
+            if self.user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
+            
             authors = self.db.query(Quotes.author).distinct().all()
 
             if not authors:

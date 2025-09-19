@@ -53,8 +53,8 @@ class AuthServices:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password.")
             
             # logic for access and refresh token generation
-            access_token = create_access_token(user.first_name, user.email, user.user_id )
-            refresh_token = create_access_token(user.first_name, user.email, user.user_id, timedelta(days=1), refresh=True)
+            access_token = create_access_token(first_name=user.first_name, email=user.email, user_id=user.user_id )
+            refresh_token = create_access_token(first_name=user.first_name, email=user.email, user_id=user.user_id, expire_delta=timedelta(days=1), refresh=True)
 
             data = {
                 'access_token': access_token,
@@ -88,7 +88,7 @@ class AuthServices:
                 user_id=user_data['user_id']
             )
 
-            new_refresh_token = create_access_token(user_data['username'], user_data['role'], user_data['id'], timedelta(days=1), refresh=True )
+            new_refresh_token = create_access_token(first_name=user_data['first_name'], email=user_data['email'], user_id=user_data['user_id'] , expire_delta=timedelta(days=1), refresh=True )
 
             data = {
                 'access_token': new_access_token,
