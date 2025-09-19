@@ -11,9 +11,7 @@ class AuthServices:
 
     def user_sign_up(self, user_create_request: UserCreateRequest):
         try:
-
             user = self.db.query(Users).filter(Users.email == user_create_request.email).first()
-
             if user:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exist.")
 
@@ -23,7 +21,6 @@ class AuthServices:
                 email = user_create_request.email,
                 password = hash_password(user_create_request.password),
             )
-
             self.db.add(new_user)
             self.db.commit()
             self.db.refresh(new_user)
@@ -34,25 +31,24 @@ class AuthServices:
                 'last_name': new_user.last_name,
                 'email': new_user.email
             }
+            return data
 
         except HTTPException as e:
             raise e
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
-        else:
-            return data
         
+
+
     def user_sign_in(self, user_sign_in_request: UserSignInRequest):
         try:
             user = self.db.query(Users).filter(Users.email == user_sign_in_request.email).first()
-
             if not user:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email does not exist.")
             
             if not verify_password(user_sign_in_request.password, user.password):
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password.")
             
-            # logic for access and refresh token generation
             access_token = create_access_token(first_name=user.first_name, email=user.email, user_id=user.user_id )
             refresh_token = create_access_token(first_name=user.first_name, email=user.email, user_id=user.user_id, expire_delta=timedelta(days=1), refresh=True)
 
@@ -61,15 +57,13 @@ class AuthServices:
                 'refresh_token': refresh_token,
                 'token_type': 'bearer'
             }
+            return data
 
         except HTTPException as e:
             raise e
-        
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
-        
-        else:
-            return data
+
         
 
     def refresh_access(self, refresh_token):
@@ -87,7 +81,6 @@ class AuthServices:
                 email=user_data['email'],
                 user_id=user_data['user_id']
             )
-
             new_refresh_token = create_access_token(first_name=user_data['first_name'], email=user_data['email'], user_id=user_data['user_id'] , expire_delta=timedelta(days=1), refresh=True )
 
             data = {
@@ -95,9 +88,9 @@ class AuthServices:
                 'refresh_token': new_refresh_token,
                 'token_type': 'bearer'
             }
+            return data
+        
         except HTTPException as e:
             raise e
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
-        else:
-            return data
