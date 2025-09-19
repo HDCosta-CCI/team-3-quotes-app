@@ -14,6 +14,7 @@ from models.quotes import Quotes
 from models.user_quote_reactions import UserQuoteReactions
 from dto.response_dto import GlobalResponse
 
+
 app = FastAPI()
 
 origins = [
@@ -28,14 +29,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(AuthContextMiddleware)
 
 # Include all routes
 app.include_router(auth_router)
-app.add_middleware(AuthContextMiddleware)
 app.include_router(user_router)
 app.include_router(quotes_router)
 app.include_router(author_router)
-
 
 def custom_openapi():
     schema = get_openapi(

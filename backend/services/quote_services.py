@@ -41,8 +41,7 @@ class QuoteServices:
 
     def get_quote(self, quote_id):
         try:
-            if not self.user:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+            self.authorize_user()
             quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
             if not quote:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quote not found")
@@ -398,3 +397,7 @@ class QuoteServices:
         
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
+        
+    def authorize_user(self):
+        if not self.user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized!")
