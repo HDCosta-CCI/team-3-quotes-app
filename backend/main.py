@@ -43,7 +43,7 @@ async def on_shutdown():
 
 # Include all routes
 app.include_router(auth_router)
-app.add_middleware(AuthContextMiddleware)
+# app.add_middleware(AuthContextMiddleware)
 app.include_router(user_router)
 app.include_router(quotes_router)
 app.include_router(author_router)

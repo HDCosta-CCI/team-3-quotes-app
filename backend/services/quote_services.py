@@ -361,6 +361,9 @@ class QuoteServices:
     
     def fetch_liked_user(self, quote_id):
         try:
+            if self.user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
+
             users = self.db.query(Users).join(UserQuoteReactions, UserQuoteReactions.user_id == Users.user_id).filter(UserQuoteReactions.quote_id == quote_id, UserQuoteReactions.like == True).all()
 
             data = []
@@ -381,6 +384,9 @@ class QuoteServices:
         
     def fetch_disliked_user(self, quote_id):
         try:
+            if self.user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
+            
             users = self.db.query(Users).join(UserQuoteReactions, UserQuoteReactions.user_id == Users.user_id).filter(UserQuoteReactions.quote_id == quote_id, UserQuoteReactions.dislike == True).all()
 
             data = []

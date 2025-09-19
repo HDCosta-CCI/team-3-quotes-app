@@ -12,7 +12,7 @@ ACCESS_TOKEN_EXPIRY = 20
 
 def create_access_token(email: str, first_name: str, user_id:UUID, expire_delta: timedelta = None, refresh: bool = False):
     try:
-        encode = {"sub":first_name, "role": email, "user_id": str(user_id)}
+        encode = {"sub":first_name, "email": email, "user_id": str(user_id)}
         expires = datetime.utcnow() + (expire_delta if expire_delta is not None else timedelta(minutes=ACCESS_TOKEN_EXPIRY))
         encode.update({"exp": expires})
         encode.update({"refresh": refresh})
@@ -29,7 +29,7 @@ def validate_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         first_name = payload.get("sub")
-        email = payload.get("role")
+        email = payload.get("email")
         user_id = payload.get("user_id")
         return {'first_name': first_name, 'user_id': user_id, 'email': email}
     except JWTError:
