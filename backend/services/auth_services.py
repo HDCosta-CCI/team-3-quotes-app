@@ -13,7 +13,7 @@ class AuthServices:
         try:
             user = self.db.query(Users).filter(Users.email == user_create_request.email).first()
             if user:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exist.")
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exist!")
 
             new_user = Users(
                 first_name = user_create_request.first_name,
@@ -43,11 +43,11 @@ class AuthServices:
     def user_sign_in(self, user_sign_in_request: UserSignInRequest):
         try:
             user = self.db.query(Users).filter(Users.email == user_sign_in_request.email).first()
-            if not user:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email does not exist.")
+            if not user or user.status=="inactive":
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User does not exist!")
             
             if not verify_password(user_sign_in_request.password, user.password):
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password.")
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password!")
             
             access_token = create_access_token(first_name=user.first_name, email=user.email, user_id=user.user_id )
             refresh_token = create_access_token(first_name=user.first_name, email=user.email, user_id=user.user_id, expire_delta=timedelta(days=1), refresh=True)
@@ -69,12 +69,12 @@ class AuthServices:
     def refresh_access(self, refresh_token):
         try:
             if not refresh_token:
-                raise HTTPException(status_code=401, detail="Missing refresh token")
+                raise HTTPException(status_code=401, detail="Missing refresh token!")
             
             user_data = validate_token(refresh_token)
             
             if not user_data:
-                raise HTTPException(status_code=403, detail="Invalid refresh token")
+                raise HTTPException(status_code=403, detail="Invalid refresh token!")
             
             new_access_token = create_access_token(
                 first_name=user_data['first_name'],

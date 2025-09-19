@@ -24,7 +24,6 @@ router = APIRouter(
     - Public endpoint (no authentication required)  
     - Returns a structured list of quotes including author, content, and tags
     """,
-    openapi_extra={"security": []}
 )
 @limiter.limit("10/day")
 async def get_all_quotes(request: Request, db: Session = Depends(get_db)):

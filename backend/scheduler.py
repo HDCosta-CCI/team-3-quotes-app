@@ -11,7 +11,7 @@ def create_scheduler():
 
 def add_jobs(scheduler):
     db = next(get_db())
-    trigger = CronTrigger(second="*/10")
+    trigger = CronTrigger(second="*/20")
     # trigger = CronTrigger(minute="*/10")
     scheduler.add_job(QuoteServices(db, user=None).count_like_dislike, trigger, id="count_job", replace_existing=True)
 
