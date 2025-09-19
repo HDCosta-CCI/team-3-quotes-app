@@ -12,6 +12,7 @@ class QuoteServices:
         self.db = db
         self.user = user
 
+
     def get_all_quotes(self):
         try:
             quotes = self.db.query(Quotes).all()
@@ -37,6 +38,7 @@ class QuoteServices:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
 
+
     def get_quote(self, quote_id):
         try:
             self._is_authenticate_user()
@@ -58,6 +60,7 @@ class QuoteServices:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
         
 
+
     def get_quote_tags(self): 
         try:
             self._is_authenticate_user()
@@ -76,6 +79,8 @@ class QuoteServices:
             raise e
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
+
+
 
     def create_quote(self, request: QuoteRequest) -> Quotes:
         try:
@@ -103,6 +108,7 @@ class QuoteServices:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
         
+
 
     def update_quote(self, quote_id, request: QuoteUpdateRequest):
         try:
@@ -132,6 +138,7 @@ class QuoteServices:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
 
+
     def delete_quote(self, quote_id):
         try:
             self._is_authenticate_user()
@@ -147,6 +154,7 @@ class QuoteServices:
             raise e    
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
+
 
 
     def like_quote_up(self, quote_id):
@@ -191,6 +199,7 @@ class QuoteServices:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
 
+
     def dislike_quote_up(self, quote_id):
             try:
                 self._is_authenticate_user()
@@ -233,6 +242,7 @@ class QuoteServices:
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
 
+
     def like_quote_down(self, quote_id):
         try:
             self._is_authenticate_user()
@@ -261,6 +271,7 @@ class QuoteServices:
             raise e
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
+
 
 
     def dislike_quote_down(self, quote_id):
@@ -292,6 +303,7 @@ class QuoteServices:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
         
+
     
     def fetch_liked_user(self, quote_id):
         try:
@@ -311,6 +323,8 @@ class QuoteServices:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
         
+
+
     def fetch_disliked_user(self, quote_id):
         try:
             self._is_authenticate_user()
@@ -329,13 +343,13 @@ class QuoteServices:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
         
-    def count_like_dislike(self):
 
+
+    def count_like_dislike(self):
         time.sleep(1)
 
         try:
             quotes = self.db.query(Quotes).all()
-
             for quote in quotes:
                 like_count = self.db.query(func.count()).filter(
                     UserQuoteReactions.quote_id == quote.quote_id,
@@ -349,7 +363,6 @@ class QuoteServices:
 
                 quote.like = like_count
                 quote.dislike = dislike_count
-
             self.db.commit()
 
         except Exception as e:
@@ -361,7 +374,7 @@ class QuoteServices:
 
 
 
-    # DRY
+    # Helper functions
 
     def _is_authenticate_user(self):
         if not self.user:

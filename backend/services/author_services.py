@@ -11,16 +11,14 @@ class AuthorServices():
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
             
             authors = self.db.query(Quotes.author).distinct().all()
-
             if not authors:
                 HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Authors not found.")
 
             author_list = [a[0] for a in authors]
+            return author_list
 
         except HTTPException as e:
             raise e
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
-        else:
-            return author_list
