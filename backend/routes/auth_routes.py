@@ -37,3 +37,18 @@ def sign_in(user_request: UserSignInRequest, db: Session = Depends(get_db)):
     
     except Exception as e:
         raise e
+    
+
+@router.post("/refresh-token")
+def create_token(refresh_token, db: Session = Depends(get_db)):
+    try:
+        data = AuthServices(db).refresh_access(refresh_token)
+
+        return GlobalResponse(
+            data = data,
+            message = "Access token and refresh token generated.",
+            success=True
+        )
+    
+    except Exception as e:
+        raise e
