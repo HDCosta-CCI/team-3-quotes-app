@@ -1,5 +1,6 @@
-from connections.database import Base
-from sqlalchemy import String, Column, Uuid
+from database import Base
+from sqlalchemy import TIMESTAMP, String, Column, Uuid
+from datetime import datetime
 import uuid
 
 class Users(Base):
@@ -11,3 +12,5 @@ class Users(Base):
     email = Column(String(255), unique=True)
     password = Column(String(255))
     status = Column(String(15), default="active")
+    created_at = Column(TIMESTAMP, default=datetime.now())
+    updated_at = Column(TIMESTAMP, default=datetime.now(), onupdate=datetime.now())

@@ -68,10 +68,10 @@ class QuoteServices:
         try:
             if not self.user:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-            tags = self.db.query(Quotes.tags).all()  # returns list of tuples
+            tags = self.db.query(Quotes.tags).all()
             tag_set = set()
 
-            for (tag_string,) in tags:  # unpack tuple
+            for (tag_string,) in tags:
                 if tag_string:
                     for tag in tag_string.split(";"):
                         tag_set.add(tag.strip())
@@ -90,7 +90,6 @@ class QuoteServices:
             if self.user is None:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
 
-            # new_quote = Quotes(**request.model_dump())
             new_quote = Quotes(
                 quote = request.quote,
                 author = request.author,
@@ -299,14 +298,13 @@ class QuoteServices:
                     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not liked!")
                 else:
                     quote.like -= 1
-                    reaction.like = False
+                    self.db.query(UserQuoteReactions).filter(UserQuoteReactions.reaction_id == reaction.reaction_id).delete(synchronize_session=False)
 
             self.db.commit()
             self.db.refresh(quote)
-            self.db.refresh(reaction)
 
             return  {
-                "id": reaction.reaction_id,
+                "id": quote.quote_id,
                 "quote": quote.quote,
                 "author": quote.author,
                 "like": quote.like,
@@ -340,14 +338,13 @@ class QuoteServices:
                     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not disliked!")
                 else:
                     quote.dislike -= 1
-                    reaction.dislike = False
+                    self.db.query(UserQuoteReactions).filter(UserQuoteReactions.reaction_id == reaction.reaction_id).delete(synchronize_session=False)
 
             self.db.commit()
             self.db.refresh(quote)
-            self.db.refresh(reaction)
 
             return  {
-                "id": reaction.reaction_id,
+                "id": quote.quote_id,
                 "quote": quote.quote,
                 "author": quote.author,
                 "like": quote.like,

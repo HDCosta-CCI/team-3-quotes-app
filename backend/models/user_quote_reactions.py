@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Uuid, ForeignKey, Boolean
+from sqlalchemy import Column, TIMESTAMP, Uuid, ForeignKey, Boolean
 from sqlalchemy import Uuid
 from uuid import uuid4
-from connections.database import Base
+from datetime import datetime
+from database import Base
 
 class UserQuoteReactions(Base):
     __tablename__ = "user_quote_reactions"
@@ -11,3 +12,5 @@ class UserQuoteReactions(Base):
     dislike = Column(Boolean, default=False)
     quote_id = Column(Uuid, ForeignKey("quotes.quote_id"), nullable=False)
     user_id = Column(Uuid, ForeignKey("users.user_id"), nullable=False)
+    created_at = Column(TIMESTAMP, default=datetime.now())
+    updated_at = Column(TIMESTAMP, default=datetime.now(), onupdate=datetime.now())
