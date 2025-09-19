@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import FastAPI, Request, APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from dependencies.get_db import get_db
 from dependencies.get_current_user import get_current_user
-from dependencies.get_rate_limit import get_rate_limiter
 from services.quote_services import QuoteServices
 from dto.quotes_dto import QuoteRequest, QuoteUpdateRequest
 from dto.response_dto import GlobalResponse
 from uuid import UUID
+from dependencies.get_limiter import limiter
 
 
 router = APIRouter(
@@ -24,9 +24,12 @@ router = APIRouter(
     - Returns a structured list of quotes including author, content, and tags
     """
 )
-async def get_all_quotes(db: Session = Depends(get_db), _=Depends(get_rate_limiter)):
+@limiter.limit("10/day")
+async def get_all_quotes(request: Request, db: Session = Depends(get_db), user=Depends(get_current_user)):
     try:
-        data = QuoteServices(db, user=None).get_all_quotes()
+        if user:
+            request.state.view_rate_limit = None 
+        data = QuoteServices(db, user).get_all_quotes()
         return GlobalResponse(
             success = True,
             message = "Quotes fetched successfully!",
