@@ -1,11 +1,11 @@
-from typing import Any, List
 from fastapi import HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from dto.quotes_dto import QuoteRequest, QuoteUpdateRequest
 from models.quotes import Quotes
 from models.users import Users
 from models.user_quote_reactions import UserQuoteReactions
-from uuid import UUID
+import time
 
 class QuoteServices:
     def __init__(self, db: Session, user):
@@ -398,6 +398,30 @@ class QuoteServices:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
         
-    def authorize_user(self):
-        if not self.user:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized!")
+    def count_like_dislike(self):
+
+        time.sleep(1)
+        try:
+            likes_per_quote = (self.db.query(UserQuoteReactions.quote_id, func.count()).filter(UserQuoteReactions.like == True).group_by(UserQuoteReactions.quote_id).all())
+            dislikes_per_quote = (self.db.query(UserQuoteReactions.quote_id, func.count()).filter(UserQuoteReactions.dislike == True).group_by(UserQuoteReactions.quote_id).all())
+
+            likes_dict = {quote_id: count for quote_id, count in likes_per_quote}
+            dislikes_dict = {quote_id: count for quote_id, count in dislikes_per_quote}
+
+            all_quote_ids = set(likes_dict.keys()).union(dislikes_dict.keys())
+
+            for quote_id in all_quote_ids:
+                quote = self.db.query(Quotes).filter(Quotes.quote_id == quote_id).first()
+                if not quote:
+                    continue
+
+                if quote_id in likes_dict:
+                    quote.like = likes_dict[quote_id]
+
+                if quote_id in dislikes_dict:
+                    quote.dislike = dislikes_dict[quote_id]
+
+            self.db.commit()
+        except Exception as e:
+            raise e
+
