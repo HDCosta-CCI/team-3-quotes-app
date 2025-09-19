@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import FastAPI, Request, APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 from dependencies.get_db import get_db
 from dependencies.get_current_user import get_current_user
 from services.quote_services import QuoteServices
-from dto.quotes_dto import QuoteRequest, QuoteResponse, QuoteUpdateRequest
+from dto.quotes_dto import QuoteRequest, QuoteUpdateRequest
 from dto.response_dto import GlobalResponse
 from uuid import UUID
+from dependencies.get_limiter import limiter
+
 
 router = APIRouter(
     prefix='/quotes',
@@ -20,20 +23,18 @@ router = APIRouter(
     Fetches a list of all available quotes in the system.  
     - Public endpoint (no authentication required)  
     - Returns a structured list of quotes including author, content, and tags
-    """
+    """,
+    openapi_extra={"security": []}
 )
-async def get_all_quotes(db: Session = Depends(get_db)):
-    try:
-        data = QuoteServices(db, user=None).get_all_quotes()
-        return GlobalResponse(
-            success = True,
-            message = "Quotes fetched successfully!",
-            data = data
-        )
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise e    
+@limiter.limit("10/day")
+async def get_all_quotes(request: Request, db: Session = Depends(get_db)):
+    print("2")
+    data = QuoteServices(db, user=None).get_all_quotes()
+    return {
+        "success": True,
+        "message": "Quotes fetched successfully!",
+        "data": data
+    }
 
 
 @router.get(

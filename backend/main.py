@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -9,19 +9,24 @@ from routes.user_routes import router as user_router
 from routes.auth_routes import router as auth_router
 from routes.quote_routes import router as quotes_router
 from routes.authors_routes import router as author_router
+from dto.response_dto import GlobalResponse
+from scheduler import create_scheduler, add_jobs
+from slowapi.middleware import SlowAPIMiddleware
+from dependencies.get_current_user import get_current_user
+from dependencies.get_limiter import limiter
+
 from models.users import Users
 from models.quotes import Quotes
 from models.user_quote_reactions import UserQuoteReactions
-from dto.response_dto import GlobalResponse
-from scheduler import create_scheduler, add_jobs
 
 app = FastAPI()
 scheduler = create_scheduler()
+
+
 origins = [
     "http://localhost:5173",
     "http://localhost:8000",
 ]
- 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -29,7 +34,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(AuthContextMiddleware)
 
+# Scheduler logic - for like/dislike count update
 @app.on_event("startup")
 async def on_startup():
     add_jobs(scheduler)
@@ -43,11 +50,14 @@ async def on_shutdown():
 
 # Include all routes
 app.include_router(auth_router)
-app.add_middleware(AuthContextMiddleware)
+# app.add_middleware(AuthContextMiddleware)
 app.include_router(user_router)
 app.include_router(quotes_router)
 app.include_router(author_router)
 
+# Limiter logic
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
 
 def custom_openapi():
     schema = get_openapi(

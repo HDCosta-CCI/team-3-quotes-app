@@ -9,9 +9,12 @@ class UserServices:
         self.db = db
         self.user = user
 
-    def fetch_user_details(self, user):
+    def fetch_user_details(self):
         try:
-            user = self.db.query(Users).filter(Users.user_id == user.user_id).first()
+            if self.user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
+            print("here", self.user)
+            user = self.db.query(Users).filter(Users.user_id == self.user.get("user_id")).first()
 
             data = {
                 'user_id': user.user_id,
@@ -29,6 +32,9 @@ class UserServices:
     
     def update_user_details(self, user_update_request: UserUpdateRequest):
         try:
+            if self.user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
+            
             user = self.db.query(Users).filter(Users.user_id == self.user.user_id).first()
             if not user:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="user not found.")
@@ -57,6 +63,9 @@ class UserServices:
 
     def delete_user(self, user_id):
         try:
+            if self.user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
+            
             user = self.db.query(Users).filter(Users.user_id == user_id).first()
 
             if not user:
@@ -78,6 +87,9 @@ class UserServices:
         
     def fetch_quotes(self, user_id):
         try:
+            if self.user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
+            
             quotes = self.db.query(Quotes).filter(Quotes.user_id == user_id).all()
 
             if not quotes:
@@ -106,6 +118,9 @@ class UserServices:
 
     def fetch_quotes_disliked(self, user_id):
         try:
+            if self.user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
+            
             quotes =  self.db.query(Quotes, UserQuoteReactions).join(UserQuoteReactions, Quotes.quote_id == UserQuoteReactions.quote_id).filter(UserQuoteReactions.user_id == user_id, UserQuoteReactions.dislike == True).all()
 
             if not quotes:        
@@ -135,6 +150,9 @@ class UserServices:
 
     def fetch_quotes_liked(self, user_id):
         try:
+            if self.user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed!")
+            
             quotes =  self.db.query(Quotes).join(UserQuoteReactions, Quotes.quote_id == UserQuoteReactions.quote_id).filter(UserQuoteReactions.user_id == user_id, UserQuoteReactions.like == True).all()
 
             if not quotes:        
