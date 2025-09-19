@@ -13,9 +13,10 @@ from models.users import Users
 from models.quotes import Quotes
 from models.user_quote_reactions import UserQuoteReactions
 from dto.response_dto import GlobalResponse
+from scheduler import create_scheduler, add_jobs
 
 app = FastAPI()
-
+scheduler = create_scheduler()
 origins = [
     "http://localhost:5173",
     "http://localhost:8000",
@@ -28,6 +29,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def on_startup():
+    add_jobs(scheduler)
+    scheduler.start()
+    print("Scheduler started")
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    scheduler.shutdown()
+    print("Scheduler stopped")
 
 # Include all routes
 app.include_router(auth_router)
