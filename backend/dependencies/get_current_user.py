@@ -24,7 +24,7 @@ def get_current_user(
     db: Session = Depends(get_db)
 ):
     if token is None or token.credentials is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+        return None
 
     try:
         claims = validate_token(token.credentials)  # your function to decode and verify JW
