@@ -42,14 +42,7 @@ class QuoteServices:
             self._is_authenticate_user()
             quote = self._check_quote_exist(quote_id)
             
-            data = {
-                "id": str(quote.quote_id),
-                "quote": quote.quote,
-                "author": quote.author,
-                "like": quote.like,
-                "dislike": quote.dislike,
-                "tags": quote.tags,
-            }
+            data = self._format_quote(quote)
             return data
 
         except HTTPException as e:
@@ -116,14 +109,7 @@ class QuoteServices:
             self.db.commit()
             self.db.refresh(quote)
 
-            data = {
-                "id": str(quote.quote_id),
-                "quote": quote.quote,
-                "author": quote.author,
-                "like": quote.like,
-                "dislike": quote.dislike,
-                "tags": quote.tags,
-            }
+            data = self._format_quote(quote)
             return data
 
         except HTTPException as e:
@@ -177,14 +163,9 @@ class QuoteServices:
             self.db.refresh(quote)
             self.db.refresh(reaction)
 
-            return  {
-                "id": reaction.reaction_id,
-                "quote": quote.quote,
-                "author": quote.author,
-                "like": quote.like,
-                "dislike": quote.dislike,
-                "tags": quote.tags
-            }
+            data = self._format_quote(quote)
+            return data
+        
         except HTTPException as e:
             raise e
         except Exception as e:
@@ -219,14 +200,8 @@ class QuoteServices:
                 self.db.refresh(quote)
                 self.db.refresh(reaction)
 
-                return  {
-                    "id": reaction.reaction_id,
-                    "quote": quote.quote,
-                    "author": quote.author,
-                    "like": quote.like,
-                    "dislike": quote.dislike,
-                    "tags": quote.tags
-                }
+                data = self._format_quote(quote)
+                return  data
             except HTTPException as e:
                 raise e
             except Exception as e:
@@ -249,14 +224,9 @@ class QuoteServices:
             self.db.commit()
             self.db.refresh(quote)
 
-            return  {
-                "id": quote.quote_id,
-                "quote": quote.quote,
-                "author": quote.author,
-                "like": quote.like,
-                "dislike": quote.dislike,
-                "tags": quote.tags
-            }
+            data = self._format_quote(quote)
+            return  data
+        
         except HTTPException as e:
             raise e
         except Exception as e:
@@ -279,14 +249,7 @@ class QuoteServices:
             self.db.commit()
             self.db.refresh(quote)
 
-            return  {
-                "id": quote.quote_id,
-                "quote": quote.quote,
-                "author": quote.author,
-                "like": quote.like,
-                "dislike": quote.dislike,
-                "tags": quote.tags
-            }
+            return  
         except HTTPException as e:
             raise e
         except Exception as e:
@@ -390,4 +353,16 @@ class QuoteServices:
         except Exception as e:
             raise e
         
+
+    def _format_quote(quote):
+        data = {
+                "id": str(quote.quote_id),
+                "quote": quote.quote,
+                "author": quote.author,
+                "like": quote.like,
+                "dislike": quote.dislike,
+                "tags": quote.tags
+            }
+        
+        return data
     

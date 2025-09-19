@@ -88,8 +88,6 @@ class UserServices:
 
             if not quotes:        
                 HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Authors not found.")
-
-            quotes_list = []
             
             quotes_list = self.format_quotes(quotes)
 
