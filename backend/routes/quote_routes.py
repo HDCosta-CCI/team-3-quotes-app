@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 from dependencies.get_db import get_db
 from dependencies.get_current_user import get_current_user
@@ -26,20 +27,14 @@ router = APIRouter(
     openapi_extra={"security": []}
 )
 @limiter.limit("10/day")
-async def get_all_quotes(request: Request, db: Session = Depends(get_db), user=Depends(get_current_user)):
-    try:
-        if user:
-            request.state.view_rate_limit = None 
-        data = QuoteServices(db, user).get_all_quotes()
-        return GlobalResponse(
-            success = True,
-            message = "Quotes fetched successfully!",
-            data = data
-        )
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise e    
+async def get_all_quotes(request: Request, db: Session = Depends(get_db)):
+    print("2")
+    data = QuoteServices(db, user=None).get_all_quotes()
+    return {
+        "success": True,
+        "message": "Quotes fetched successfully!",
+        "data": data
+    }
 
 
 @router.get(

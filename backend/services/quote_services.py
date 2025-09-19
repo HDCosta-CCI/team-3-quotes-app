@@ -17,7 +17,6 @@ class QuoteServices:
             quotes = self.db.query(Quotes).all()
             if not quotes:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Quotes found!")
-            print(quotes)
 
             quotes_list = []
 
