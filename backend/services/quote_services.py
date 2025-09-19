@@ -185,12 +185,12 @@ class QuoteServices:
                     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Already liked!")
                 else:
                     if reaction.dislike:
-                        quote.dislike -= 1
-                        quote.like += 1
+                        # quote.dislike -= 1
+                        # quote.like += 1
                         reaction.like = True
                         reaction.dislike = False
                     else:
-                        quote.like += 1
+                        # quote.like += 1
                         reaction.like = True
             else:
                 reaction = UserQuoteReactions(
@@ -200,10 +200,10 @@ class QuoteServices:
                     user_id=self.user.user_id
                 )
                 self.db.add(reaction)
-                quote.like += 1
+                # quote.like += 1
             
             self.db.commit()
-            self.db.refresh(quote)
+            # self.db.refresh(quote)
             self.db.refresh(reaction)
 
             return  {
@@ -242,12 +242,12 @@ class QuoteServices:
                         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Already disliked!")
                     else:
                         if reaction.like:
-                            quote.like -= 1
-                            quote.dislike += 1
+                            # quote.like -= 1
+                            # quote.dislike += 1
                             reaction.dislike = True
                             reaction.like = False
                         else:
-                            quote.dislike += 1
+                            # quote.dislike += 1
                             reaction.dislike = True
                 else:
                     reaction = UserQuoteReactions(
@@ -257,10 +257,10 @@ class QuoteServices:
                         user_id=self.user.user_id
                     )
                     self.db.add(reaction)
-                    quote.dislike += 1
+                    # quote.dislike += 1
                 
                 self.db.commit()
-                self.db.refresh(quote)
+                # self.db.refresh(quote)
                 self.db.refresh(reaction)
 
                 return  {
@@ -297,7 +297,7 @@ class QuoteServices:
                 if not reaction.like:
                     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not liked!")
                 else:
-                    quote.like -= 1
+                    # quote.like -= 1
                     self.db.query(UserQuoteReactions).filter(UserQuoteReactions.reaction_id == reaction.reaction_id).delete(synchronize_session=False)
 
             self.db.commit()
@@ -337,7 +337,7 @@ class QuoteServices:
                 if not reaction.dislike:
                     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not disliked!")
                 else:
-                    quote.dislike -= 1
+                    # quote.dislike -= 1
                     self.db.query(UserQuoteReactions).filter(UserQuoteReactions.reaction_id == reaction.reaction_id).delete(synchronize_session=False)
 
             self.db.commit()
