@@ -4,8 +4,14 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from jose import JWTError
 from auth.token import validate_token
 
+EXCLUDED_PATHS = ["/auth/sign-in", "/auth/sign-up", "/auth/refresh"]
+
 class AuthContextMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+
+        if any(request.url.path.startswith(path) for path in EXCLUDED_PATHS):
+            return await call_next(request)
+        
         request.state.auth = None
         auth_header = request.headers.get("Authorization", "")
 
