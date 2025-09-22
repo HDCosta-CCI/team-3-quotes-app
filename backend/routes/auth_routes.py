@@ -44,7 +44,7 @@ def sign_in(user_request: UserSignInRequest, db: Session = Depends(get_db)):
 @router.post("/refresh-token")
 def create_token(refresh_token= Depends(refresh_scheme), db: Session = Depends(get_db)):
     try:
-        data = AuthServices(db).refresh_access(refresh_token)
+        data = AuthServices(db).refresh_access(refresh_token.credentials)
 
         return GlobalResponse(
             data = data,

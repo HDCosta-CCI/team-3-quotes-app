@@ -17,7 +17,7 @@ class QuoteServices:
         try:
             quotes = self.db.query(Quotes).all()
             if not quotes:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Quotes found!")
+                return []
 
             quotes_list = []
             for quote in quotes:
@@ -230,7 +230,8 @@ class QuoteServices:
                     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not liked!")
                 else:
                     self.db.query(UserQuoteReactions).filter(UserQuoteReactions.reaction_id == reaction.reaction_id).delete(synchronize_session=False)
-
+            else:
+                raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not liked!")
             self.db.commit()
             self.db.refresh(quote)
 
@@ -256,7 +257,8 @@ class QuoteServices:
                     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not disliked!")
                 else:
                     self.db.query(UserQuoteReactions).filter(UserQuoteReactions.reaction_id == reaction.reaction_id).delete(synchronize_session=False)
-
+            else:
+                raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not disliked!")
             self.db.commit()
             self.db.refresh(quote)
 
@@ -367,7 +369,7 @@ class QuoteServices:
             raise e
         
 
-    def _format_quote(quote):
+    def _format_quote(self, quote):
         data = {
                 "id": str(quote.quote_id),
                 "quote": quote.quote,

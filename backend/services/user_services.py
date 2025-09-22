@@ -81,11 +81,13 @@ class UserServices:
     def fetch_quotes_disliked(self, user_id):
         try:
             self._is_authenticate_user()
-            quotes =  self.db.query(Quotes, UserQuoteReactions).join(UserQuoteReactions, Quotes.quote_id == UserQuoteReactions.quote_id).filter(UserQuoteReactions.user_id == user_id, UserQuoteReactions.dislike == True).all()
+            print("hello")
+            quotes =  self.db.query(Quotes).join(UserQuoteReactions, Quotes.quote_id == UserQuoteReactions.quote_id).filter(UserQuoteReactions.user_id == user_id, UserQuoteReactions.dislike == True).all()
             if not quotes:        
                 return []
-
+            print("hello")
             quotes_list = self.format_quotes(quotes)
+            print("hello")
             return quotes_list
 
         except HTTPException as e:
