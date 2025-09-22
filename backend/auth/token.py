@@ -8,22 +8,39 @@ import os
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRY = 20
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS"))
 
-def create_access_token(email: str, first_name: str, user_id:UUID, expire_delta: timedelta = None, refresh: bool = False):
+
+
+def create_access_token(
+    email: str,
+    first_name: str,
+    user_id: UUID,
+    refresh: bool = False,
+    expire_delta: timedelta = None
+):
     try:
-        encode = {"sub":first_name, "email": email, "user_id": str(user_id)}
-        expires = datetime.utcnow() + (expire_delta if expire_delta is not None else timedelta(minutes=ACCESS_TOKEN_EXPIRY))
-        encode.update({"exp": expires})
-        encode.update({"refresh": refresh})
-        token = jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+        payload = {
+            "sub": first_name,
+            "email": email,
+            "user_id": str(user_id),
+            "refresh": refresh,
+        }
+        if expire_delta is not None:
+            expires = datetime.utcnow() + expire_delta
+        else:
+            if refresh:
+                expires = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+            else:
+                expires = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
-    except JWTError:
-        raise JWTError
-    except Exception as e:
-        return e 
-    else:
+        payload.update({"exp": expires})
+        token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
         return token
+
+    except Exception as e:
+        raise e
     
 def validate_token(token: str):
     try:

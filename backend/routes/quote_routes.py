@@ -8,6 +8,12 @@ from dto.quotes_dto import QuoteRequest, QuoteUpdateRequest
 from dto.response_dto import GlobalResponse
 from uuid import UUID
 from dependencies.get_limiter import limiter
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+RATE_LIMIT = os.getenv("RATE_LIMIT")
 
 
 router = APIRouter(
@@ -25,7 +31,7 @@ router = APIRouter(
     - Returns a structured list of quotes including author, content, and tags
     """,
 )
-@limiter.limit("10/day")
+@limiter.limit(f"{RATE_LIMIT}/day")
 async def get_all_quotes(request: Request, db: Session = Depends(get_db)):
     print("2")
     data = QuoteServices(db, user=None).get_all_quotes()
