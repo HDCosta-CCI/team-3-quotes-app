@@ -33,7 +33,7 @@ def sign_in(user_request: UserSignInRequest, db: Session = Depends(get_db)):
 
         return GlobalResponse(
             data = data,
-            message = "User created successfully",
+            message = "User logged-in successfully",
             success=True
         )
     
