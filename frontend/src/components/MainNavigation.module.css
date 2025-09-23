@@ -1,0 +1,47 @@
+.header {
+  max-width: 90%;
+  margin: auto;
+  padding: 1rem 1rem;
+}
+.nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  text-decoration: none;
+  color: #f4f3f1;
+}
+
+.list1 {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  gap: 1rem;
+}
+
+.list2 {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  gap: 1rem;
+}
+
+.userInfo {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.list1 a, .list2 a {
+  text-decoration: none;
+  color: var(--color-primary-400);
+}
+
+.list1 a:hover,  .list2 a:hover,
+.list1 a.active, .list2 a.active {
+  color: var(--color-primary-800);
+}
