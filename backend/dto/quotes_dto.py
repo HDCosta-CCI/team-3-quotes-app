@@ -23,4 +23,8 @@ class QuoteUpdateRequest(BaseModel):
     author: Optional[str] = None
     tags: Optional[str] = None
 
+class QuoteQueryRequest(BaseModel):
+    filter: Optional[str] = None
+    search: Optional[str] = None
+
 

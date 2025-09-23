@@ -4,16 +4,10 @@ from sqlalchemy.orm import Session
 from dependencies.get_db import get_db
 from dependencies.get_current_user import get_current_user
 from services.quote_services import QuoteServices
-from dto.quotes_dto import QuoteRequest, QuoteUpdateRequest
+from dto.quotes_dto import QuoteRequest, QuoteUpdateRequest, QuoteQueryRequest
 from dto.response_dto import GlobalResponse
 from uuid import UUID
 from dependencies.get_limiter import limiter
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
-RATE_LIMIT = os.getenv("RATE_LIMIT")
 
 
 router = APIRouter(
@@ -31,10 +25,10 @@ router = APIRouter(
     - Returns a structured list of quotes including author, content, and tags
     """,
 )
-@limiter.limit(f"{RATE_LIMIT}/day")
-async def get_all_quotes(request: Request, db: Session = Depends(get_db)):
+@limiter.limit("10/day")
+async def get_all_quotes(request: Request,query_params: QuoteQueryRequest = Depends(), db: Session = Depends(get_db)):
     print("2")
-    data = QuoteServices(db, user=None).get_all_quotes()
+    data = QuoteServices(db, user=None).get_all_quotes(query_params)
     return {
         "success": True,
         "message": "Quotes fetched successfully!",

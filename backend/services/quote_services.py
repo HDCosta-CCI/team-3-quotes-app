@@ -13,12 +13,23 @@ class QuoteServices:
         self.user = user
 
 
-    def get_all_quotes(self):
+    def get_all_quotes(self, query_params):
         try:
-            quotes = self.db.query(Quotes).all()
+            searchQuery = f"%{query_params.search}%"
+            if query_params.filter is not None:
+                if query_params.filter == "author":
+                    quotes = self.db.query(Quotes).filter(Quotes.author.like(searchQuery)).all()
+
+                if query_params.filter == "quotes":
+                    quotes = self.db.query(Quotes).filter(Quotes.quote.like(searchQuery)).all()
+                
+                if query_params.filter == "tags":
+                    quotes = self.db.query(Quotes).filter(Quotes.tags.like(searchQuery)).all()
+            else:
+                quotes = self.db.query(Quotes).all()
             if not quotes:
                 return []
-
+            
             quotes_list = []
             for quote in quotes:
                 quotes_list.append({
