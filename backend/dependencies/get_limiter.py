@@ -5,7 +5,6 @@ from fastapi import Request
 def custom_key_func(request: Request):
     
     auth_header = request.headers.get("Authorization")
-    print(auth_header)
     if auth_header and auth_header.startswith("Bearer "):
         return None
     
