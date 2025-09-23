@@ -34,7 +34,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(AuthContextMiddleware)
+# app.add_middleware(AuthContextMiddleware)
 
 # Scheduler logic - for like/dislike count update
 @app.on_event("startup")

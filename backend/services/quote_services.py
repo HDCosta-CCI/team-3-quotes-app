@@ -22,6 +22,7 @@ class QuoteServices:
             quotes_list = []
             for quote in quotes:
                 quotes_list.append({
+                    "user_id": quote.user_id,
                     "quote_id": quote.quote_id,
                     "quote": quote.quote,
                     "author": quote.author,
