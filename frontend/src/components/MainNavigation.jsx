@@ -21,10 +21,12 @@ function MainNavigation() {
             <li> <NavLink to="" className={({ isActive }) => isActive ? classes.active : undefined}>Home</NavLink> </li>
             <li> <NavLink to="/authors" className={({ isActive }) => isActive ? classes.active : undefined}>Authors</NavLink> </li>
             <li> <NavLink to="/quotes" className={({ isActive }) => isActive ? classes.active : undefined}>Quotes</NavLink> </li>
-            <li> <NavLink to="/quotes" className={({ isActive }) => isActive ? classes.active : undefined}>My Quotes</NavLink> </li>
+            <li> <NavLink to="" className={({ isActive }) => isActive ? classes.active : undefined}>My Quotes</NavLink> </li>
             <li className={classes.userInfo}>
-              <span>Haysten</span>
-              <Form action="/logout" method="post"><button>Logout</button></Form>
+              <details>
+                <summary>Haysten</summary>
+                <Form action="/logout" method="post"><button>Logout</button></Form>
+              </details>
             </li>
           </ul>
         )}
