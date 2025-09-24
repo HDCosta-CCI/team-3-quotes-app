@@ -167,9 +167,12 @@ class QuoteServices:
                     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Already liked!")
                 else:
                     if reaction.dislike:
+                        quote.like += 1
                         reaction.like = True
+                        quote.dislike -= 1
                         reaction.dislike = False
                     else:
+                        quote.like += 1
                         reaction.like = True
             else:
                 reaction = UserQuoteReactions(
@@ -205,9 +208,12 @@ class QuoteServices:
                         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Already disliked!")
                     else:
                         if reaction.like:
+                            quote.dislike += 1
                             reaction.dislike = True
+                            quote.like -= 1
                             reaction.like = False
                         else:
+                            quote.dislike += 1
                             reaction.dislike = True
                 else:
                     reaction = UserQuoteReactions(
@@ -241,6 +247,7 @@ class QuoteServices:
                 if not reaction.like:
                     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not liked!")
                 else:
+                    quote.like -= 1
                     self.db.query(UserQuoteReactions).filter(UserQuoteReactions.reaction_id == reaction.reaction_id).delete(synchronize_session=False)
             else:
                 raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not liked!")
@@ -268,6 +275,7 @@ class QuoteServices:
                 if not reaction.dislike:
                     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not disliked!")
                 else:
+                    quote.dislike -= 1
                     self.db.query(UserQuoteReactions).filter(UserQuoteReactions.reaction_id == reaction.reaction_id).delete(synchronize_session=False)
             else:
                 raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Quote was not disliked!")
