@@ -175,6 +175,7 @@ class QuoteServices:
                         quote.like += 1
                         reaction.like = True
             else:
+                quote.like += 1
                 reaction = UserQuoteReactions(
                     like=True,
                     dislike=False,
@@ -216,6 +217,7 @@ class QuoteServices:
                             quote.dislike += 1
                             reaction.dislike = True
                 else:
+                    quote.dislike += 1
                     reaction = UserQuoteReactions(
                         like=False,
                         dislike=True,
